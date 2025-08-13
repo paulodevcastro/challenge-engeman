@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Sensible datas ###
+/src/main/java/com/engeman/notify_server/config/InitialUserDataConfig.java
