@@ -9,11 +9,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.engeman.notify_server.dtos.SignUpRequestDTO;
+import com.engeman.notify_server.models.ClientModel;
+import com.engeman.notify_server.repositories.ClientRepository;
 import com.engeman.notify_server.security.jwt.JwtUtils;
 
 @RestController
@@ -21,11 +25,22 @@ import com.engeman.notify_server.security.jwt.JwtUtils;
 public class AuthController {
 
 	@Autowired
-	AuthenticationManager authenticationManager;
-	
+	private PasswordEncoder passwordEncoder;
+
 	@Autowired
-    JwtUtils jwtUtils;
+	private ClientRepository clientRepository;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private JwtUtils jwtUtils;
+
+    AuthController(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 	
+	// Post to user who is already registered
 	@PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -38,12 +53,30 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(jwt, authentication.getName()));
     }
 	
+	@PostMapping("/signup")
+	public ResponseEntity<?> registerUser(@RequestBody SignUpRequestDTO signupRequest) {
+		if (clientRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+			return ResponseEntity.badRequest().body("Erro: Email já está em uso!");
+		}
+		
+		// New obj clientModel
+		ClientModel newUser = new ClientModel();
+		newUser.setUsername(signupRequest.getUsername());
+		newUser.setEmail(signupRequest.getEmail());
+		
+		// password encrypt
+		newUser.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+		
+		clientRepository.save(newUser);
+		return ResponseEntity.ok("Usuário cadastrado com sucesso!");
+	}
+	
 }
 
 class LoginRequest {
     private String username;
     private String password;
-    // Getters e Setters
+    
 	public String getUsername() {
 		return username;
 	}

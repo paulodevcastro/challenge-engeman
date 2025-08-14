@@ -10,4 +10,5 @@ public interface ClientRepository extends JpaRepository<ClientModel, Long>{
 	
 	// Method to find a user through your username (applied to clientDetails -> service layer)
 	Optional<ClientModel> findByUsername(String username);
+	Optional<ClientModel> findByEmail(String email);
 }
