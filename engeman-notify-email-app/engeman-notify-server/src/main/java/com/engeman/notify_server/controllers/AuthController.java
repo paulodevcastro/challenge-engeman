@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.engeman.notify_server.dtos.SignUpRequestDTO;
+import com.engeman.notify_server.dtos.requests.ForgotPasswordRequestDTO;
+import com.engeman.notify_server.dtos.requests.ResetPasswordRequestDTO;
 import com.engeman.notify_server.models.ClientModel;
 import com.engeman.notify_server.repositories.ClientRepository;
 import com.engeman.notify_server.security.jwt.JwtUtils;
+import com.engeman.notify_server.services.ResetTokenService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +35,9 @@ public class AuthController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private ResetTokenService resetTokenService;
 
 	@Autowired
 	private JwtUtils jwtUtils;
@@ -71,6 +77,25 @@ public class AuthController {
 		return ResponseEntity.ok("Usuário cadastrado com sucesso!");
 	}
 	
+	// Endpoint 1: Request password reset
+	@PostMapping("/forgot-password")
+	public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDTO request){
+		String resetToken = resetTokenService.ResetTokenForClient(request.getEmail());
+		if(resetToken != null) {
+			return ResponseEntity.ok("Token de redefinição gerado e enviado para o email: " + resetToken);
+		}
+		return ResponseEntity.badRequest().body("E-mail não encontrado.");
+	}
+	
+	// Endpoint 2: Reset password with token
+	@PostMapping("/reset-password")
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDTO request){
+		boolean success = resetTokenService.resetPassword(request.getToken(), request.getNewPassword());
+		if (success) {
+			return ResponseEntity.ok("Senha redefinida com sucesso.");
+		}
+        return ResponseEntity.badRequest().body("Token inválido ou expirado.");
+	}
 }
 
 class LoginRequest {
