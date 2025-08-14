@@ -10,7 +10,7 @@ public class TestController {
 	
 	@GetMapping("/test")
     public String userAccess() {
-        return "Conteúdo para Usuário Autenticado!";
+        return "Parabéns, você está logado";
     }
 
 }

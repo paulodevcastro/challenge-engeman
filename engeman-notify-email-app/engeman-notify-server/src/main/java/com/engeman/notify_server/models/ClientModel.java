@@ -1,7 +1,11 @@
 package com.engeman.notify_server.models;
 
+import com.engeman.notify_server.models.enums.Role;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,17 +29,18 @@ public class ClientModel {
 	@Column(nullable = false, length = 255)
 	private String password;
 	
-	private String role;
-	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Role role = Role.CLIENT;
+
 	public ClientModel() {}
 
-	public ClientModel(Long id, String username, String email, String password, String role) {
+	public ClientModel(Long id, String username, String email, String password) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.role = role;
 	}
 
 	public Long getId() {
@@ -69,12 +74,12 @@ public class ClientModel {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public String getRole() {
+	
+	public Role getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
 

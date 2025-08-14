@@ -1,5 +1,9 @@
 package com.engeman.notify_server.services;
 
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +16,8 @@ import com.engeman.notify_server.repositories.ClientRepository;
 @Service
 public class ClientDetailsServices implements UserDetailsService{
 
-	private final ClientRepository clientRepository;
+	@Autowired
+	private ClientRepository clientRepository;
 	
 	public ClientDetailsServices(ClientRepository clientRepository) {
 		this.clientRepository = clientRepository;
@@ -23,9 +28,12 @@ public class ClientDetailsServices implements UserDetailsService{
 		ClientModel client = clientRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
 		
-		return User.withUsername(client.getPassword())
+		String roleName = "ROLE_" + client.getRole().name();
+
+		return User.builder()
+				.username(client.getEmail())
 				.password(client.getPassword())
-				.roles("USER")
+				.authorities(Collections.singletonList(new SimpleGrantedAuthority(roleName)))
 				.build();
 	}
 
