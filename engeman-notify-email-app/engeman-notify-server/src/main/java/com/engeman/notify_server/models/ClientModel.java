@@ -22,17 +22,20 @@ public class ClientModel {
 	@Column(unique = true, nullable = false, length = 255)
 	private String email;
 	
-	@Column(unique = true, nullable = false, length = 255)
+	@Column(nullable = false, length = 255)
 	private String password;
+	
+	private String role;
 	
 	public ClientModel() {}
 
-	public ClientModel(Long id, String username, String email, String password) {
+	public ClientModel(Long id, String username, String email, String password, String role) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
+		this.role = role;
 	}
 
 	public Long getId() {
@@ -65,6 +68,14 @@ public class ClientModel {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 }
